@@ -453,7 +453,7 @@ This implementation incorporates concepts from various research papers in:
    - Check out [`demo/demo_video.mp4`](demo/) to see the system in action
 
 3. **Download model files**
-   - Visit [`model/models_drive_link.md`](model/models_drive_link.md) for detailed instructions
+   - Visit [`models/README.md`](models/README.md) for detailed instructions
    - Download from [Google Drive](https://drive.google.com/drive/folders/16gM9xko2g0lbqjx2yg1MDF3Q-vojON2q?usp=sharing)
 
 4. **Install dependencies**
