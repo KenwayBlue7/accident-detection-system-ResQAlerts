@@ -1,4 +1,4 @@
-# 🚗 Accident Detection System using YOLO, Kalman Filter & Multi-Object Tracking
+# Accident Detection System using YOLO, Kalman Filter & Multi-Object Tracking
 
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://python.org)
 [![OpenCV](https://img.shields.io/badge/OpenCV-4.0+-green.svg)](https://opencv.org)
