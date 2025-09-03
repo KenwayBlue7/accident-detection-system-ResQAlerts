@@ -43,19 +43,16 @@ accident_detection/
 │   ├── kalman_filter.py        # Motion prediction
 │   ├── accident_detector.py    # Accident detection logic
 │   ├── hungarian_matcher.py    # Object matching algorithm
-│   ├── firebase_service.py     # Firebase integration
 │   └── utils.py                # Utility functions
 ├── 📁 Resources
-│   ├── models/                 # ONNX model files (see models/README.md)
-│   │   ├── README.md           # Model download instructions
-│   │   └── [Model files - Download required]
+│   ├── models/                 # ONNX model files
+│   │   ├── custom2_1280.onnx
+│   │   ├── yolov7_5classes_640x640.onnx
+│   │   └── working.onnx
 │   ├── data/
-│   │   ├── coco.names          # COCO class labels
-│   │   └── traffic.names       # Traffic class definitions
-│   ├── videos/
-│   │   └── accident2.mp4       # Sample test video
-│   └── config/
-│       └── [Firebase config - Not included for security]
+│   │   └── traffic.names       # Class label definitions
+│   └── videos/
+│       └── accident2.mp4       # Sample test video
 └── 📁 Output
     ├── accident_output.avi     # Processed video output
     └── logs/                   # System logs
@@ -70,14 +67,13 @@ accident_detection/
 ### Prerequisites
 - Python 3.8 or higher
 - Git
-- Webcam or video file for testing
 
 ### Quick Setup
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/KenwayBlue7/accident-detection-system-ResQAlerts.git
-   cd accident-detection-system-ResQAlerts
+   git clone https://github.com/yourusername/accident-detection-system.git
+   cd accident-detection-system
    ```
 
 2. **Install dependencies**
@@ -90,7 +86,7 @@ accident_detection/
    pip install onnxruntime-gpu
    ```
 
-3. **Download model files** (Required - see [Model Setup](#-model-files-setup) section below)
+3. **Download model files** (Required - see Model Setup section below)
 
 ## 📦 Model Files Setup
 
@@ -101,18 +97,16 @@ Due to GitHub's 100MB file size limit, model files must be downloaded separately
 ### Required Models:
 - **custom2_1280.onnx** (139.59 MB) - Custom trained model
 - **yolov7_5classes_640x640.onnx** (139.36 MB) - YOLOv7 5-class model
-- **working.onnx** (139.59 MB) - Additional working model
+- **working.onnx** - Additional working model
 
 ### Download Instructions:
-1. Navigate to the [`models/`](models/) directory
-2. Read the detailed instructions in [`models/README.md`](models/README.md)
-3. Download files from: [**📁 Google Drive Models Folder**](https://drive.google.com/drive/folders/16gM9xko2g0lbqjx2yg1MDF3Q-vojON2q?usp=sharing)
-4. Place all `.onnx` files in the [`models/`](models/) folder
+1. Create the `models/` directory in your project folder
+2. Download files from: [**Google Drive Models Folder**](https://drive.google.com/drive/folders/16gM9xko2g0lbqjx2yg1MDF3Q-vojON2q?usp=sharing)
+3. Place all `.onnx` files in the `models/` folder
 
 ### Verification:
 ```bash
 models/
-├── README.md
 ├── custom2_1280.onnx
 ├── yolov7_5classes_640x640.onnx
 └── working.onnx
@@ -126,7 +120,7 @@ python main.py
 ```
 
 ### Custom Video Input
-To use your own video file, modify [`main.py`](main.py):
+To use your own video file, modify `main.py`:
 ```python
 # Replace webcam input
 cap = cv2.VideoCapture(0)
@@ -135,43 +129,28 @@ cap = cv2.VideoCapture(0)
 cap = cv2.VideoCapture("path/to/your/video.mp4")
 ```
 
-### Test with Sample Video
-```bash
-# Use the included sample video
-# Modify main.py to use: cv2.VideoCapture("videos/accident2.mp4")
-python main.py
-```
-
 ### Real-time Webcam
 The system defaults to webcam input (index 0). Ensure your camera is connected and accessible.
 
 ## ⚙️ Configuration
 
-### Core Components
-
-- **[`main.py`](main.py)** - Main execution pipeline and configuration
-- **[`detector.py`](detector.py)** - YOLO object detection implementation
-- **[`multitracker.py`](multitracker.py)** - Multi-object tracking system
-- **[`accident_detector.py`](accident_detector.py)** - Accident detection logic
-- **[`kalman_filter.py`](kalman_filter.py)** - Motion prediction algorithms
-- **[`hungarian_matcher.py`](hungarian_matcher.py)** - Object matching optimization
-
 ### Accident Detection Parameters
 
-Fine-tune detection sensitivity by modifying parameters in [`main.py`](main.py):
+Fine-tune detection sensitivity by modifying parameters in `main.py`:
 
-| Parameter | Description | Default Value | Location |
-|-----------|-------------|---------------|----------|
-| `speed_threshold` | Low-speed cutoff for accident detection | 6.0 mph | [`main.py`](main.py) |
-| `overlap_threshold` | Bounding box intersection threshold | 0.3 | [`accident_detector.py`](accident_detector.py) |
-| `relative_speed_threshold` | Speed difference threshold | 6.0 | [`accident_detector.py`](accident_detector.py) |
-| `center_proximity_threshold` | Object center distance threshold | 30 pixels | [`accident_detector.py`](accident_detector.py) |
-| `confirm_frames` | Frames required to confirm accident | 5 | [`accident_detector.py`](accident_detector.py) |
-| `accident_display_duration` | Accident visualization duration | 40 frames | [`main.py`](main.py) |
+| Parameter | Description | Default Value |
+|-----------|-------------|---------------|
+| `speed_threshold` | Low-speed cutoff for accident detection | 6.0 mph |
+| `overlap_threshold` | Bounding box intersection threshold | 0.3 |
+| `relative_speed_threshold` | Speed difference threshold | 6.0 |
+| `center_proximity_threshold` | Object center distance threshold | 30 pixels |
+| `confirm_frames` | Frames required to confirm accident | 5 |
+| `accident_display_duration` | Accident visualization duration | 40 frames |
+| `speed_drop_threshold` | Sudden stop detection threshold | 70 |
+| `class_freeze_frames` | Class stabilization period | 10 frames |
 
 ### Example Configuration:
 ```python
-# In main.py
 accident_detector = AccidentDetector(
     speed_threshold=8.0,          # Adjust sensitivity
     overlap_threshold=0.25,       # More sensitive overlap
@@ -181,24 +160,24 @@ accident_detector = AccidentDetector(
 
 ## 🧠 Accident Detection Algorithm
 
-The system employs a sophisticated multi-criteria scoring approach implemented in [`accident_detector.py`](accident_detector.py):
+The system employs a sophisticated multi-criteria scoring approach:
 
 ### Detection Pipeline:
-1. **Object Detection** - YOLO ([`detector.py`](detector.py)) identifies vehicles and pedestrians
-2. **Motion Tracking** - Kalman filters ([`kalman_filter.py`](kalman_filter.py)) predict trajectories
-3. **Object Matching** - Hungarian algorithm ([`hungarian_matcher.py`](hungarian_matcher.py)) maintains consistent tracking
-4. **Condition Analysis** - Multiple criteria evaluated simultaneously in [`accident_detector.py`](accident_detector.py)
+1. **Object Detection** - YOLO identifies vehicles and pedestrians
+2. **Motion Tracking** - Kalman filters predict trajectories
+3. **Object Matching** - Hungarian algorithm maintains consistent tracking
+4. **Condition Analysis** - Multiple criteria evaluated simultaneously
 5. **Confirmation** - Sustained detection over multiple frames
 
 ### Scoring Criteria:
 
-| Criterion | Weight | Description | Implementation |
-|-----------|--------|-------------|----------------|
-| **Bounding Box Overlap** | High | Physical intersection of objects | [`utils.py`](utils.py) - `calculate_iou()` |
-| **Speed Analysis** | High | Sudden velocity changes | [`track.py`](track.py) - Speed calculation |
-| **Proximity Detection** | Medium | Object center distances | [`accident_detector.py`](accident_detector.py) |
-| **Behavioral Changes** | Medium | Classification inconsistencies | [`track.py`](track.py) - Class stability |
-| **Trajectory Analysis** | Low | Motion pattern disruption | [`kalman_filter.py`](kalman_filter.py) |
+| Criterion | Weight | Description |
+|-----------|--------|-------------|
+| **Bounding Box Overlap** | High | Physical intersection of objects |
+| **Speed Analysis** | High | Sudden velocity changes |
+| **Proximity Detection** | Medium | Object center distances |
+| **Behavioral Changes** | Medium | Classification inconsistencies |
+| **Trajectory Analysis** | Low | Motion pattern disruption |
 
 ## 📊 Output & Monitoring
 
@@ -209,27 +188,41 @@ The system employs a sophisticated multi-criteria scoring approach implemented i
 - Trajectory traces for motion history
 
 ### Logging System:
-Comprehensive logs stored in [`output/logs/`](output/logs/) for analysis and debugging:
-- [`main_log.txt`](output/logs/main_log.txt) - Overall system events
-- [`track_log.txt`](output/logs/track_log.txt) - Individual object tracking
-- [`accident_log.txt`](output/logs/accident_log.txt) - Accident detection events
-- [`multitracker_log.txt`](output/logs/multitracker_log.txt) - Tracking algorithm details
+Comprehensive logs for analysis and debugging:
+- `main_log.txt` - Overall system events
+- `track_log.txt` - Individual object tracking
+- `accident_log.txt` - Accident detection events
+- `multitracker_log.txt` - Tracking algorithm details
 
-### Video Output:
-- Processed video saved as [`accident_output.avi`](output/accident_output.avi)
-- Real-time display with annotations
+## 📁 Output Structure
+
+The system generates the following outputs (not included in repository):
+
+```
+output/
+├── accident_output.avi     # Processed video with annotations
+├── logs/                   # System logs
+│   ├── main_log.txt
+│   ├── track_log.txt
+│   ├── multitracker_log.txt
+│   └── accident_log.txt
+└── screenshots/            # Accident event captures
+    └── accident_YYYYMMDD_HHMMSS.jpg
+```
+
+**Note**: Output files are generated locally and not tracked in version control due to size constraints.
 
 ## 🎨 Customization
 
 ### Model Replacement:
-Replace YOLO models with custom-trained versions in [`detector.py`](detector.py):
+Replace YOLO models with custom-trained versions:
 ```python
 # In detector.py
 model_path = "models/your_custom_model.onnx"
 ```
 
 ### Class Labels:
-Update detection classes in [`data/traffic.names`](data/traffic.names):
+Update detection classes in `data/traffic.names`:
 ```
 car
 bus
@@ -240,34 +233,25 @@ person
 ```
 
 ### Visualization:
-Modify drawing functions in [`utils.py`](utils.py) for custom overlays:
-- `draw_detections()` - Bounding box visualization
-- `draw_speed()` - Speed indicators
-- `draw_trajectory()` - Motion trails
+Modify `draw_detections()` in `utils.py` for custom overlays.
 
 ## 🔧 Troubleshooting
 
 ### Common Issues:
 
 **Model Loading Errors:**
-- Ensure all `.onnx` files are in the [`models/`](models/) folder
-- Check [`models/README.md`](models/README.md) for download instructions
-- Verify file permissions and corruption
+- Ensure all `.onnx` files are in the `models/` folder
+- Check file permissions and corruption
 
 **Performance Issues:**
 - Use GPU acceleration with `onnxruntime-gpu`
-- Reduce input resolution in [`main.py`](main.py)
-- Adjust detection confidence thresholds in [`detector.py`](detector.py)
+- Reduce input resolution for faster processing
+- Adjust detection confidence thresholds
 
 **False Positives:**
-- Increase `confirm_frames` parameter in [`accident_detector.py`](accident_detector.py)
+- Increase `confirm_frames` parameter
 - Adjust `overlap_threshold` for stricter detection
-- Fine-tune speed thresholds in [`main.py`](main.py)
-
-**Firebase Integration Issues:**
-- Check [`firebase_service.py`](firebase_service.py) configuration
-- Ensure Firebase credentials are properly set up
-- Verify internet connection for cloud services
+- Fine-tune speed thresholds for your scenario
 
 ## 📈 Performance Metrics
 
@@ -278,17 +262,11 @@ Modify drawing functions in [`utils.py`](utils.py) for custom overlays:
 
 ## 🔬 Technical Details
 
-### File Structure & Dependencies:
-
-| File | Purpose | Key Dependencies |
-|------|---------|------------------|
-| [`main.py`](main.py) | Main execution pipeline | OpenCV, NumPy |
-| [`detector.py`](detector.py) | YOLO object detection | ONNX Runtime |
-| [`multitracker.py`](multitracker.py) | Multi-object tracking | NumPy, OpenCV |
-| [`kalman_filter.py`](kalman_filter.py) | Motion prediction | NumPy |
-| [`hungarian_matcher.py`](hungarian_matcher.py) | Object matching | NumPy, SciPy |
-| [`firebase_service.py`](firebase_service.py) | Cloud integration | Firebase Admin SDK |
-| [`utils.py`](utils.py) | Utility functions | OpenCV, NumPy |
+### Dependencies:
+- **OpenCV**: Image processing and video handling
+- **NumPy**: Numerical computations
+- **ONNX Runtime**: Model inference engine
+- **Python Standard Library**: Logging, file operations
 
 ### Algorithms:
 - **YOLO**: State-of-the-art object detection
@@ -312,34 +290,6 @@ Modify drawing functions in [`utils.py`](utils.py) for custom overlays:
 - ☁️ **Cloud-based Analysis Dashboard**
 - 🚨 **Real-time Alert System**
 
-## 📁 Project Structure
-
-```
-📦 accident-detection-system-ResQAlerts/
-├── 📄 README.md                 # This file
-├── 📄 main.py                   # Main execution pipeline
-├── 📄 detector.py               # YOLO object detection
-├── 📄 multitracker.py           # Multi-object tracking
-├── 📄 track.py                  # Individual track management
-├── 📄 kalman_filter.py          # Motion prediction
-├── 📄 accident_detector.py      # Accident detection logic
-├── 📄 hungarian_matcher.py      # Object matching algorithm
-├── 📄 firebase_service.py       # Firebase cloud integration
-├── 📄 utils.py                  # Utility functions
-├── 📄 .gitignore               # Git ignore rules
-├── 📁 models/                   # Model files (download required)
-│   └── 📄 README.md            # Model download instructions
-├── 📁 data/                     # Data files
-│   ├── 📄 coco.names           # COCO class labels
-│   └── 📄 traffic.names        # Traffic class definitions
-├── 📁 videos/                   # Test videos
-│   └── 🎥 accident2.mp4        # Sample accident video
-├── 📁 output/                   # Generated outputs
-│   ├── 🎥 accident_output.avi  # Processed video output
-│   └── 📁 logs/                # System logs
-└── 📁 config/                   # Configuration files (not included)
-```
-
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
@@ -351,39 +301,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **OpenCV Community** - Computer vision tools
 - **Research Community** - Accident detection methodologies
 
-## 📞 Support & Contact
+## 📞 Support
 
-- 🐛 **Issues**: [GitHub Issues](https://github.com/KenwayBlue7/accident-detection-system-ResQAlerts/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/KenwayBlue7/accident-detection-system-ResQAlerts/discussions)
-- 📧 **Email**: Contact through GitHub profile
-- 🌟 **Repository**: [accident-detection-system-ResQAlerts](https://github.com/KenwayBlue7/accident-detection-system-ResQAlerts)
-
-## 🚀 Quick Start Guide
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/KenwayBlue7/accident-detection-system-ResQAlerts.git
-   cd accident-detection-system-ResQAlerts
-   ```
-
-2. **Download model files**
-   - Visit [`models/README.md`](models/README.md) for detailed instructions
-   - Download from [Google Drive](https://drive.google.com/drive/folders/16gM9xko2g0lbqjx2yg1MDF3Q-vojON2q?usp=sharing)
-
-3. **Install dependencies**
-   ```bash
-   pip install opencv-python numpy onnxruntime
-   ```
-
-4. **Run the system**
-   ```bash
-   python main.py
-   ```
+- 📧 **Email**: [your.email@example.com]
+- 🐛 **Issues**: [GitHub Issues](https://github.com/yourusername/accident-detection-system/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/yourusername/accident-detection-system/discussions)
 
 ---
 
 **⭐ Star this repository if you find it helpful!**
 
 *Developed with dedication to improve road safety through intelligent monitoring systems.*
-
-**🔗 Repository**: https://github.com/KenwayBlue7/accident-detection-system-ResQAlerts
